@@ -1,4 +1,4 @@
-# Fairwinds Technical Challenge
+# Technical Challenge
 
 ## Assignment
 
