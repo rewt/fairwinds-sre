@@ -78,10 +78,10 @@ output "security_group_ids" {
   value       = module.ec2_instance.security_group_ids
 }
 
-output "role" {
-  description = "Name of AWS IAM Role associated with the instance"
-  value       = module.ec2_instance.role
-}
+# output "role" {
+#   description = "Name of AWS IAM Role associated with the instance"
+#   value       = module.ec2_instance.role
+# }
 
 output "additional_eni_ids" {
   description = "Map of ENI to EIP"

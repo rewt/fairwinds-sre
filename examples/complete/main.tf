@@ -1,5 +1,7 @@
 provider "aws" {
-  region = var.region
+  region                  = var.region
+  shared_credentials_file = "~/.aws/credentials"
+  profile                 = "fairwinds"
 }
 
 module "aws_key_pair" {
@@ -24,7 +26,7 @@ module "vpc" {
 
 module "subnets" {
   source  = "cloudposse/dynamic-subnets/aws"
-  version = "0.28.0"
+  # version = "0.28.0"
 
   availability_zones   = var.availability_zones
   vpc_id               = module.vpc.vpc_id
@@ -45,46 +47,22 @@ module "instance_profile_label" {
   context = module.this.context
 }
 
-data "aws_iam_policy_document" "test" {
-  statement {
-    effect = "Allow"
-
-    actions = [
-      "sts:AssumeRole"
-    ]
-
-    principals {
-      type        = "Service"
-      identifiers = ["ec2.amazonaws.com"]
-    }
-  }
-}
-
-resource "aws_iam_role" "test" {
-  name               = module.instance_profile_label.id
-  assume_role_policy = data.aws_iam_policy_document.test.json
-  tags               = module.instance_profile_label.tags
-}
-
-# https://github.com/hashicorp/terraform-guides/tree/master/infrastructure-as-code/terraform-0.13-examples/module-depends-on
-resource "aws_iam_instance_profile" "test" {
-  name = module.instance_profile_label.id
-  role = aws_iam_role.test.name
-}
 
 module "ec2_instance" {
   source = "../../"
 
+  monitoring                  = false
+  user_data                   = file("user_data.sh")
   ssh_key_pair                = module.aws_key_pair.key_name
   vpc_id                      = module.vpc.vpc_id
-  subnet                      = module.subnets.private_subnet_ids[0]
+  subnet                      = module.subnets.public_subnet_ids[0]
   security_groups             = [module.vpc.vpc_default_security_group_id]
   assign_eip_address          = var.assign_eip_address
   associate_public_ip_address = var.associate_public_ip_address
   instance_type               = var.instance_type
   allowed_ports               = var.allowed_ports
   allowed_ports_udp           = var.allowed_ports_udp
-  instance_profile            = aws_iam_instance_profile.test.name
+  # instance_profile            = aws_iam_instance_profile.test.name
 
   context = module.this.context
 }

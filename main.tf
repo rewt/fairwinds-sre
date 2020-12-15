@@ -1,8 +1,8 @@
 locals {
   instance_count = module.this.enabled ? 1 : 0
   # create an instance profile if the instance is enabled and we aren't given one to use
-  instance_profile_count = module.this.enabled ? (length(var.instance_profile) > 0 ? 0 : 1) : 0
-  instance_profile       = local.instance_profile_count == 0 ? var.instance_profile : join("", aws_iam_instance_profile.default.*.name)
+  # instance_profile_count = module.this.enabled ? (length(var.instance_profile) > 0 ? 0 : 1) : 0
+  # instance_profile       = local.instance_profile_count == 0 ? var.instance_profile : join("", aws_iam_instance_profile.default.*.name)
   security_group_count   = var.create_default_security_group ? 1 : 0
   region                 = var.region != "" ? var.region : data.aws_region.default.name
   root_iops              = var.root_volume_type == "io1" ? var.root_iops : "0"
@@ -78,25 +78,25 @@ resource "null_resource" "instance_profile_dependency" {
   }
 }
 
-data "aws_iam_instance_profile" "given" {
-  count      = module.this.enabled && length(var.instance_profile) > 0 ? 1 : 0
-  name       = var.instance_profile
-  depends_on = [null_resource.instance_profile_dependency]
-}
+# data "aws_iam_instance_profile" "given" {
+#   count      = module.this.enabled && length(var.instance_profile) > 0 ? 1 : 0
+#   name       = var.instance_profile
+#   depends_on = [null_resource.instance_profile_dependency]
+# }
 
-resource "aws_iam_instance_profile" "default" {
-  count = local.instance_profile_count
-  name  = module.this.id
-  role  = join("", aws_iam_role.default.*.name)
-}
+# resource "aws_iam_instance_profile" "default" {
+#   count = local.instance_profile_count
+#   name  = module.this.id
+#  role  = join("", aws_iam_role.default.*.name)
+# }
 
-resource "aws_iam_role" "default" {
-  count                = local.instance_profile_count
-  name                 = module.this.id
-  path                 = "/"
-  assume_role_policy   = data.aws_iam_policy_document.default.json
-  permissions_boundary = var.permissions_boundary_arn
-}
+# resource "aws_iam_role" "default" {
+#   count                = local.instance_profile_count
+#   name                 = module.this.id
+#   path                 = "/"
+#   assume_role_policy   = data.aws_iam_policy_document.default.json
+#   permissions_boundary = var.permissions_boundary_arn
+# }
 
 resource "aws_instance" "default" {
   count                       = local.instance_count
@@ -107,7 +107,7 @@ resource "aws_instance" "default" {
   disable_api_termination     = var.disable_api_termination
   user_data                   = var.user_data
   user_data_base64            = var.user_data_base64
-  iam_instance_profile        = local.instance_profile
+  # iam_instance_profile        = local.instance_profile
   associate_public_ip_address = var.associate_public_ip_address
   key_name                    = var.ssh_key_pair
   subnet_id                   = var.subnet
