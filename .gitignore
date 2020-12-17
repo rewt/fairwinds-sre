@@ -1,6 +1,6 @@
 # Module directory
-.tfstate
-.ftstate.backup
+*.tfstate
+*.ftstate.backup
 /secrets
 
 .terraform/
