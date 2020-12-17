@@ -1,4 +1,8 @@
 # Module directory
+.tfstate
+.ftstate.backup
+/secrets
+
 .terraform/
 .idea
 *.iml
