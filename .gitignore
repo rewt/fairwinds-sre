@@ -1,7 +1,4 @@
-# Module directory
-*.tfstate
-*.ftstate.backup
-/secrets
+# Module directorys
 
 .terraform/
 .idea
@@ -9,3 +6,11 @@
 
 .build-harness
 build-harness
+
+
+# .tfstate files
+*.tfstate
+*.tfstate.*
+
+# ignore ssh keys
+/examples/complete/secrets
